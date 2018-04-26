@@ -1,49 +1,5 @@
 package sokoban
 
-// Direction represents the direction in which the player moves
-type Direction int
-
-const (
-	Up    Direction = iota
-	Right Direction = iota
-	Down  Direction = iota
-	Left  Direction = iota
-)
-
-// DirectionToStr returns the string associated with the given Direction.
-func DirectionToStr(d Direction) string {
-	switch d {
-	case Up:
-		return "Up"
-	case Down:
-		return "Down"
-	case Left:
-		return "Left"
-	case Right:
-		return "Right"
-	default:
-		return "?"
-	}
-}
-
-const invalidDir = 55
-
-// returns (dx, dy) deltas for Direction enum
-func directionDelta(d Direction) (int, int) {
-	switch d {
-	case Up:
-		return 0, -1
-	case Down:
-		return 0, 1
-	case Left:
-		return -1, 0
-	case Right:
-		return 1, 0
-	default:
-		return invalidDir, invalidDir
-	}
-}
-
 // MakeMove attempts to move the player in the given direction.
 // returns true if the player was able to move
 // returns false if the player can't move e.g. blocked by wall
@@ -144,5 +100,24 @@ func (b *Board) GetScore() int {
 
 // Won returns whether the player has won the game
 func (b *Board) Won() bool {
-	return b.score == len(b.targets)
+	return b.score > 0 && b.score == len(b.targets)
 }
+
+// returns (dx, dy) deltas for Direction enum
+func directionDelta(d Direction) (int, int) {
+	switch d {
+	case Up:
+		return 0, -1
+	case Down:
+		return 0, 1
+	case Left:
+		return -1, 0
+	case Right:
+		return 1, 0
+	default:
+		return invalidDir, invalidDir
+	}
+}
+
+// Flag for invalid Direction
+const invalidDir = 55

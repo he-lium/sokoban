@@ -1,7 +1,10 @@
 package tests
 
-import "testing"
-import "github.com/he-lium/sokoban"
+import (
+	"testing"
+
+	"github.com/he-lium/sokoban"
+)
 
 type CellBoard struct{}
 type SimpleBoard struct{}
