@@ -168,3 +168,49 @@ func TestWithBox(t *testing.T) {
 		t.Error("Won() should return true at end")
 	}
 }
+
+func TestUndo(t *testing.T) {
+	g := SimpleBoard2{}.GenBoard()
+	if g.Won() != false {
+		t.Error("Won() should return false at start")
+	}
+
+	if g.UndoMove() != false {
+		t.Error("UndoMove() should return false at start")
+	}
+
+	tables := []struct {
+		d        sokoban.Direction
+		expected bool
+	}{
+		{sokoban.Up, true},
+		{sokoban.Left, true},
+		{sokoban.Left, true},
+		{sokoban.Down, true},
+		{sokoban.Down, true},
+		{sokoban.Right, true},
+	}
+	for i, turn := range tables {
+		ret := g.MakeMove(turn.d)
+		if ret != turn.expected {
+			t.Errorf("Turn %d error: Move(%s) should have returned %t",
+				i, sokoban.DirectionToStr(turn.d), turn.expected)
+		}
+	}
+	if g.Won() != true {
+		t.Error("Won() should return true after 7 moves")
+	}
+	// Attempt to undo previous move
+	if g.UndoMove() != true {
+		t.Error("UndoMove() should return true after Move")
+	}
+	if g.Won() != false {
+		t.Error("Won() should return false after Undo")
+	}
+	if g.MakeMove(sokoban.Right) != true {
+		t.Error("MakeMove(Right) failed after Undo")
+	}
+	if g.Won() != true {
+		t.Error("Won() should return true at end")
+	}
+}

@@ -26,23 +26,7 @@ func (b *Board) MakeMove(dir Direction) bool {
 		next2 = Point{next.X + dx, next.Y + dy}
 		if b.validSpace(next2) && !b.grid[next2.X][next2.Y].containsBox {
 
-			// update box's new position
-			nextGrid2 := &(b.grid[next2.X][next2.Y])
-			nextGrid2.containsBox = true
-			nextGrid2.boxID = nextGrid.boxID
-			b.boxes[nextGrid2.boxID] = next2
-
-			// update box's previous position
-			nextGrid.containsBox = false
-			nextGrid.boxID = 0
-
-			// update score
-			if nextGrid.itemType == Target {
-				b.score-- // leaving target
-			}
-			if nextGrid2.itemType == Target {
-				b.score++ // entering target
-			}
+			b.moveBox(next, next2)
 
 			// move player and update history
 			nextMove := move{
@@ -66,7 +50,29 @@ func (b *Board) MakeMove(dir Direction) bool {
 
 		valid = true
 	}
+
 	return valid
+}
+
+// moves the box between given Points, updating state and score as needed.
+// precondition: points are valid
+func (b *Board) moveBox(from, to Point) {
+	src := &(b.grid[from.X][from.Y])
+	dest := &(b.grid[to.X][to.Y])
+
+	dest.containsBox = true
+	dest.boxID = src.boxID
+	b.boxes[dest.boxID] = to
+
+	src.containsBox = false
+	src.boxID = 0
+
+	if src.itemType == Target {
+		b.score--
+	}
+	if dest.itemType == Target {
+		b.score++
+	}
 }
 
 // validSpace returns whether (x,y) is a valid coordinate and not a wall
@@ -83,13 +89,11 @@ func (b *Board) UndoMove() bool {
 		return false
 	}
 
-	lastMove := b.history[len(b.history)]
+	lastMove := b.history[len(b.history)-1]
 	b.history = b.history[:len(b.history)-1]
 
 	b.player = lastMove.from
-
-	// TODO rollback score and box
-
+	b.moveBox(*lastMove.boxTo, *lastMove.boxFrom)
 	return true
 }
 
