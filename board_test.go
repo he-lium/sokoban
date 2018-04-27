@@ -1,40 +1,14 @@
-package tests
+package sokoban_test
 
 import (
 	"testing"
 
 	"github.com/he-lium/sokoban"
+	"github.com/he-lium/sokoban/mock"
 )
 
-type CellBoard struct{}
-type SimpleBoard struct{}
-type SimpleBoard2 struct{}
-
-var _ sokoban.BoardMaker = (*CellBoard)(nil)
-var _ sokoban.BoardMaker = (*SimpleBoard)(nil)
-var _ sokoban.BoardMaker = (*SimpleBoard2)(nil)
-
-func (c CellBoard) GenBoard() *sokoban.Board {
-	/* Board structure
-	###
-	#P#
-	###
-	*/
-	g := sokoban.NewEmptyBoard(0, 3, 3)
-	g.AddWall(0, 0)
-	g.AddWall(0, 1)
-	g.AddWall(0, 2)
-	g.AddWall(1, 0)
-	g.AddWall(1, 2)
-	g.AddWall(2, 0)
-	g.AddWall(2, 1)
-	g.AddWall(2, 2)
-	g.InitPlayer(1, 1)
-	return g
-}
-
 func TestCellBoard(t *testing.T) {
-	c := CellBoard{}
+	c := mock.BoardMaker1{}
 	game := c.GenBoard()
 	score := game.GetScore()
 	if score != 0 {
@@ -55,29 +29,8 @@ func TestCellBoard(t *testing.T) {
 	}
 }
 
-func (m SimpleBoard) GenBoard() *sokoban.Board {
-	/* Structure
-	####
-	#P #
-	#  #
-	####
-	*/
-	g := sokoban.NewEmptyBoard(1, 4, 4)
-	for i := 0; i < 4; i++ {
-		g.AddWall(i, 0)
-		g.AddWall(i, 3)
-	}
-	g.AddWall(0, 1)
-	g.AddWall(3, 1)
-	g.AddWall(0, 2)
-	g.AddWall(3, 2)
-
-	g.InitPlayer(1, 1)
-	return g
-}
-
 func TestMovePlayer(t *testing.T) {
-	g := SimpleBoard{}.GenBoard()
+	g := mock.BoardMaker2{}.GenBoard()
 	tables := []struct {
 		d        sokoban.Direction
 		expected bool
@@ -103,33 +56,8 @@ func TestMovePlayer(t *testing.T) {
 	}
 }
 
-func (m SimpleBoard2) GenBoard() *sokoban.Board {
-	g := sokoban.NewEmptyBoard(2, 6, 5)
-	for i := 0; i < 6; i++ { // top and bottom wall
-		g.AddWall(i, 0)
-		g.AddWall(i, 4)
-	}
-	for i := 0; i < 5; i++ { // left and right wall
-		g.AddWall(0, i)
-		g.AddWall(5, i)
-	}
-	g.AddWall(3, 2)
-	g.AddBox(3, 3)
-	g.AddTarget(4, 3)
-	g.InitPlayer(4, 2)
-
-	return g
-	/* Structure:
-	######
-	#    #
-	#  #P#
-	#  BT#
-	######
-	*/
-}
-
 func TestWithBox(t *testing.T) {
-	g := SimpleBoard2{}.GenBoard()
+	g := mock.BoardMaker3{}.GenBoard()
 	if g.Won() != false {
 		t.Error("Won() should return false at start")
 	}
@@ -170,7 +98,7 @@ func TestWithBox(t *testing.T) {
 }
 
 func TestUndo(t *testing.T) {
-	g := SimpleBoard2{}.GenBoard()
+	g := mock.BoardMaker3{}.GenBoard()
 	if g.Won() != false {
 		t.Error("Won() should return false at start")
 	}

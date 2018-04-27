@@ -1,28 +1,30 @@
 package sokoban
 
-import "time"
+// BoardService defines interface for game controller
+type BoardService interface {
+	ProcessMove(Direction)
+}
 
 // Board is a representation of the Sokoban game board, storing
 // positions of objects and move history
 type Board struct {
 	ID     int
-	width  int
-	height int
-	grid   [][]BoardItem
+	Width  int
+	Height int
+	Grid   [][]BoardItem
 
-	player  Point
+	Player  Point
 	boxes   []Point
 	targets []Point
 
-	history   []move
-	score     int
-	startTime time.Time
+	history []move
+	score   int
 }
 
 // BoardItem shows what is in the current grid spot.
 type BoardItem struct {
-	itemType    BoardItemType
-	containsBox bool
+	ItemType    BoardItemType
+	ContainsBox bool
 	boxID       int
 	targetID    int
 }
@@ -53,6 +55,7 @@ type move struct {
 // Direction represents the direction in which the player attempts to move
 type Direction int
 
+// Direction enums
 const (
 	Up    Direction = iota
 	Right Direction = iota
