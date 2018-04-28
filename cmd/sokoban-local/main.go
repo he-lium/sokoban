@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/he-lium/sokoban"
@@ -17,6 +18,10 @@ func main() {
 		R: os.Stdin,
 		W: os.Stdout,
 	}
-	game := sokoban.InitGame(1, gen, controller)
+	game, err := sokoban.InitGame(1, gen, controller)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error while starting game: %s\n", err.Error())
+		os.Exit(2)
+	}
 	game.Play()
 }

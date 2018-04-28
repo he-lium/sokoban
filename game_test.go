@@ -24,7 +24,10 @@ func TestGameSinglePlayer(t *testing.T) {
 	if len(c.Actions) != len(c.Results) {
 		panic("each action should have a result")
 	}
-	g := sokoban.InitGame(1, mock.BoardMaker3{}, &c)
+	g, err := sokoban.InitGame(1, mock.BoardMaker3{}, &c)
+	if err != nil {
+		c.T.Fatalf("unable to init game: %s", err)
+	}
 
 	g.Play()
 

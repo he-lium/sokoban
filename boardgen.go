@@ -6,7 +6,7 @@ package sokoban
 // implementations should use the functions defined in this file to generate
 // board
 type BoardMaker interface {
-	GenBoard() *Board
+	GenBoard() (*Board, error)
 }
 
 // NewEmptyBoard returns a pointer to a blank board of given dimensions

@@ -11,7 +11,7 @@ var _ sokoban.BoardMaker = (*BoardMaker1)(nil)
 var _ sokoban.BoardMaker = (*BoardMaker2)(nil)
 var _ sokoban.BoardMaker = (*BoardMaker3)(nil)
 
-func (c BoardMaker1) GenBoard() *sokoban.Board {
+func (c BoardMaker1) GenBoard() (*sokoban.Board, error) {
 	/* Board structure
 	###
 	#P#
@@ -27,10 +27,10 @@ func (c BoardMaker1) GenBoard() *sokoban.Board {
 	g.AddWall(2, 1)
 	g.AddWall(2, 2)
 	g.InitPlayer(1, 1)
-	return g
+	return g, nil
 }
 
-func (m BoardMaker2) GenBoard() *sokoban.Board {
+func (m BoardMaker2) GenBoard() (*sokoban.Board, error) {
 	/* Structure
 	####
 	#P #
@@ -48,10 +48,10 @@ func (m BoardMaker2) GenBoard() *sokoban.Board {
 	g.AddWall(3, 2)
 
 	g.InitPlayer(1, 1)
-	return g
+	return g, nil
 }
 
-func (m BoardMaker3) GenBoard() *sokoban.Board {
+func (m BoardMaker3) GenBoard() (*sokoban.Board, error) {
 	g := sokoban.NewEmptyBoard(2, 6, 5)
 	for i := 0; i < 6; i++ { // top and bottom wall
 		g.AddWall(i, 0)
@@ -66,7 +66,7 @@ func (m BoardMaker3) GenBoard() *sokoban.Board {
 	g.AddTarget(4, 3)
 	g.InitPlayer(4, 2)
 
-	return g
+	return g, nil
 	/* Structure:
 	######
 	#    #

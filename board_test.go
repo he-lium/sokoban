@@ -9,7 +9,10 @@ import (
 
 func TestCellBoard(t *testing.T) {
 	c := mock.BoardMaker1{}
-	game := c.GenBoard()
+	game, err := c.GenBoard()
+	if err != nil {
+		t.Fatalf("unable to create board: %s", err)
+	}
 	score := game.GetScore()
 	if score != 0 {
 		t.Errorf("incorrect score, received %d, expected %d", score, 0)
@@ -30,7 +33,10 @@ func TestCellBoard(t *testing.T) {
 }
 
 func TestMovePlayer(t *testing.T) {
-	g := mock.BoardMaker2{}.GenBoard()
+	g, err := mock.BoardMaker2{}.GenBoard()
+	if err != nil {
+		t.Fatalf("unable to create board: %s", err)
+	}
 	tables := []struct {
 		d        sokoban.Direction
 		expected bool
@@ -57,7 +63,10 @@ func TestMovePlayer(t *testing.T) {
 }
 
 func TestWithBox(t *testing.T) {
-	g := mock.BoardMaker3{}.GenBoard()
+	g, err := mock.BoardMaker3{}.GenBoard()
+	if err != nil {
+		t.Fatalf("unable to create board: %s", err)
+	}
 	if g.Won() != false {
 		t.Error("Won() should return false at start")
 	}
@@ -98,7 +107,10 @@ func TestWithBox(t *testing.T) {
 }
 
 func TestUndo(t *testing.T) {
-	g := mock.BoardMaker3{}.GenBoard()
+	g, err := mock.BoardMaker3{}.GenBoard()
+	if err != nil {
+		t.Fatalf("unable to create board: %s", err)
+	}
 	if g.Won() != false {
 		t.Error("Won() should return false at start")
 	}

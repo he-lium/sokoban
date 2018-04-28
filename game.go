@@ -37,16 +37,23 @@ type Controller interface {
 }
 
 // InitGame creates a Game instance with given number of players, controller and board generator
-func InitGame(nPlayers int, gen BoardMaker, c Controller) *Game {
+// Returns error if unable to create Game
+func InitGame(nPlayers int, gen BoardMaker, c Controller) (*Game, error) {
 	g := &Game{
 		boards:  make([]*Board, nPlayers),
 		control: c,
 	}
-	g.boards[0] = gen.GenBoard()
+
+	var err error
+	g.boards[0], err = gen.GenBoard()
+	if err != nil {
+		return nil, err
+	}
+
 	for i := 1; i < nPlayers; i++ {
 		g.boards[i] = g.boards[0].Clone()
 	}
-	return g
+	return g, nil
 }
 
 // Play plays the Game on a loop, invoking Controller interface functions
