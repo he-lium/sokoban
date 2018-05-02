@@ -16,11 +16,12 @@ func TestGameSinglePlayer(t *testing.T) {
 		sokoban.Action{Type: sokoban.Move, Direction: sokoban.Left},
 		sokoban.Action{Type: sokoban.Move, Direction: sokoban.Down},
 		sokoban.Action{Type: sokoban.Move, Direction: sokoban.Down},
-		sokoban.Action{Type: sokoban.Move, Direction: sokoban.Right},
-		sokoban.Action{Type: sokoban.Undo, Direction: sokoban.Right},
+		sokoban.Action{Type: sokoban.Move, Direction: sokoban.Down},
+		sokoban.Action{Type: sokoban.Undo, Direction: -1},
+		sokoban.Action{Type: sokoban.Move, Direction: sokoban.Down},
 		sokoban.Action{Type: sokoban.Move, Direction: sokoban.Right},
 	}
-	c.Results = []bool{false, true, true, true, true, true, true, true, true}
+	c.Results = []bool{false, true, true, true, true, true, false, true, true, true}
 	if len(c.Actions) != len(c.Results) {
 		panic("each action should have a result")
 	}

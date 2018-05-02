@@ -11,8 +11,8 @@ type Game struct {
 
 // Action represents a player's attempt on making a move
 type Action struct {
-	Type      ActionType `json:"action"`
-	Direction Direction  `json:"direction"`
+	Type      ActionType
+	Direction Direction
 }
 
 // ActionType enum for how the player moves
@@ -71,19 +71,37 @@ func (g *Game) Play() {
 
 		var success bool
 
-		switch action.Type {
-		case Move:
-			success = g.boards[p].MakeMove(action.Direction)
-		case Undo:
-			success = g.boards[p].UndoMove()
-		case Reset:
-			g.boards[p].Reset()
-			success = true
-		default:
+		if g.boards[p].Won() {
 			success = false
+		} else {
+			switch action.Type {
+			case Move:
+				success = g.boards[p].MakeMove(action.Direction)
+			case Undo:
+				success = g.boards[p].UndoMove()
+			case Reset:
+				g.boards[p].Reset()
+				success = true
+			default:
+				success = false
+			}
 		}
 
 		g.control.SendResult(p, success, action)
 		g.control.OutputBoard(p, g.boards[p])
 	}
+}
+
+// ActionTypeToStr gets the name string of an ActionType
+func ActionTypeToStr(t ActionType) string {
+	var str = "?"
+	switch t {
+	case Move:
+		str = "move"
+	case Undo:
+		str = "undo"
+	case Reset:
+		str = "reset"
+	}
+	return str
 }
