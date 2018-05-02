@@ -79,7 +79,7 @@ func (c *Controller) OutputBoard(p int, b *sokoban.Board) {
 // Closing signals whether the game has been won
 func (c *Controller) Closing() bool {
 	if c.won {
-		fmt.Fprintf(c.W, "You win!")
+		fmt.Fprintln(c.W, "You win!")
 	}
 	return c.won
 }

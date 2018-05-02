@@ -11,8 +11,8 @@ type Game struct {
 
 // Action represents a player's attempt on making a move
 type Action struct {
-	Type      ActionType
-	Direction Direction
+	Type      ActionType `json:"action"`
+	Direction Direction  `json:"direction"`
 }
 
 // ActionType enum for how the player moves
@@ -64,6 +64,11 @@ func (g *Game) Play() {
 
 	for !g.control.Closing() {
 		p, action := g.control.RecvInput()
+		if p < 0 || p >= len(g.boards) {
+			// invalid player num
+			continue
+		}
+
 		var success bool
 
 		switch action.Type {

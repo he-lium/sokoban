@@ -67,13 +67,13 @@ const (
 func DirectionToStr(d Direction) string {
 	switch d {
 	case Up:
-		return "Up"
+		return "up"
 	case Down:
-		return "Down"
+		return "down"
 	case Left:
-		return "Left"
+		return "left"
 	case Right:
-		return "Right"
+		return "right"
 	default:
 		return "?"
 	}
