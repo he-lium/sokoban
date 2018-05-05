@@ -1,4 +1,4 @@
-package web
+package websocket
 
 import "github.com/he-lium/sokoban"
 import "github.com/he-lium/sokoban/parse"
@@ -6,11 +6,11 @@ import "github.com/he-lium/sokoban/parse"
 // Controller implements sokoban.Controller by communicating to user(s) via
 // Go channels
 type Controller struct {
-	receiver  <-chan receiveInfo // channel where users send their inputs
-	sender    []chan<- []byte    // slice of channels to send the results
-	nPlaying  int                // number of players who haven't left the game
-	connected []bool             // bit table of players connected to server
-	won       []bool             // bit table of players who have won
+	receiver  chan receiveInfo // channel where users send their inputs
+	sender    []*client        // slice of channels to send the results
+	nPlaying  int              // number of players who haven't left the game
+	connected []bool           // bit table of players connected to server
+	won       []bool           // bit table of players who have won
 }
 
 type receiveInfo struct {
@@ -25,10 +25,9 @@ func (c *Controller) Init(b *sokoban.Board) {
 	for i := range c.sender {
 		j, err := parse.InitBoardJSON(c.nPlaying, i, b)
 		if err == nil {
-			c.sender[i] <- j
+			c.sender[i].sendMsg <- j
 		} else {
 			// TODO Log error
-
 		}
 	}
 }
@@ -67,6 +66,15 @@ func (c *Controller) RecvInput() (int, sokoban.Action) {
 		default: // invalid direction
 			a.Direction = -1
 		}
+	case "disconnect":
+		// controller action: player has disconnected
+		if c.connected[req.player] {
+			c.connected[req.player] = false
+			close(c.sender[req.player].sendMsg)
+			if !c.won[req.player] {
+				c.nPlaying--
+			}
+		}
 	default:
 		// invalid action
 	}
@@ -103,10 +111,10 @@ func (c *Controller) sendTo(p int, msg []byte) {
 	// attempt to send to sender goroutine, disconnecting if failed
 	if c.connected[p] {
 		select {
-		case c.sender[p] <- msg:
+		case c.sender[p].sendMsg <- msg:
 		default:
 			c.connected[p] = false
-			close(c.sender[p])
+			close(c.sender[p].sendMsg)
 			if !c.won[p] {
 				c.nPlaying--
 			}
