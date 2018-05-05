@@ -10,8 +10,10 @@ import (
 	"github.com/he-lium/sokoban/terminal"
 )
 
-// Play a single player sokoban game where the terminal displays the board and
+// Play a 2-player sokoban game where the terminal displays the board and
 // the user enters actions through keyboard characters
+
+const numPlayers = 2
 
 // Board is loaded from json file given in argument
 func main() {
@@ -28,9 +30,9 @@ func main() {
 	controller := &terminal.Controller{
 		R:        os.Stdin,
 		W:        os.Stdout,
-		NPlayers: 1,
+		NPlayers: numPlayers,
 	}
-	game, err := sokoban.InitGame(1, gen, controller)
+	game, err := sokoban.InitGame(numPlayers, gen, controller)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error while starting game: %s\n", err.Error())
 		os.Exit(3)

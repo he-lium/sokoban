@@ -11,12 +11,14 @@ import (
 // Controller implements sokoban.Controller and interacts with the user via
 // command line, printing the board and accepting keystrokes as moves
 type Controller struct {
-	R      io.Reader
-	W      io.Writer
-	valid  bool
-	won    bool
-	turns  int
-	reader *bufio.Reader
+	R          io.Reader
+	W          io.Writer
+	valid      bool
+	nWon       int
+	won        []bool
+	NPlayers   int
+	currPlayer int
+	reader     *bufio.Reader
 }
 
 var _ sokoban.Controller = (*Controller)(nil)
@@ -26,11 +28,21 @@ func (c *Controller) Init(b *sokoban.Board) {
 	fmt.Fprintln(c.W, "Welcome to 倉庫番!")
 	c.reader = bufio.NewReader(c.R)
 	showBoard(c.W, b)
+
+	c.won = make([]bool, c.NPlayers)
 }
 
 // RecvInput asks the user for an action
 func (c *Controller) RecvInput() (int, sokoban.Action) {
 	var a sokoban.Action
+
+	for c.won[c.currPlayer] {
+		c.currPlayer = (c.currPlayer + 1) % c.NPlayers
+	}
+	if c.NPlayers > 1 {
+		fmt.Fprintf(c.W, "Player %d: ", c.currPlayer+1)
+	}
+
 	switch c.prompt() {
 	case 'w':
 		a = sokoban.Action{Type: sokoban.Move, Direction: sokoban.Up}
@@ -45,7 +57,7 @@ func (c *Controller) RecvInput() (int, sokoban.Action) {
 	case 'r':
 		a.Type = sokoban.Reset
 	}
-	return 0, a
+	return c.currPlayer, a
 }
 
 func (c *Controller) prompt() rune {
@@ -63,6 +75,8 @@ func (c *Controller) prompt() rune {
 func (c *Controller) SendResult(p int, success bool, a sokoban.Action) {
 	if !success {
 		fmt.Fprintln(c.W, "Invalid action")
+	} else {
+		c.currPlayer = (c.currPlayer + 1) % c.NPlayers
 	}
 	c.valid = success
 }
@@ -71,17 +85,17 @@ func (c *Controller) SendResult(p int, success bool, a sokoban.Action) {
 func (c *Controller) OutputBoard(p int, b *sokoban.Board) {
 	if c.valid {
 		showBoard(c.W, b)
+		if b.Won() && !c.won[p] {
+			fmt.Fprintln(c.W, "You win!")
+			c.won[p] = true
+			c.nWon++
+		}
 	}
-	c.won = b.Won()
-	c.turns = b.GetScore()
 }
 
 // Closing signals whether the game has been won
 func (c *Controller) Closing() bool {
-	if c.won {
-		fmt.Fprintln(c.W, "You win!")
-	}
-	return c.won
+	return c.nWon == c.NPlayers
 }
 
 func showBoard(w io.Writer, b *sokoban.Board) {
