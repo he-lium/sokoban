@@ -1,7 +1,11 @@
 package websocket
 
-import "github.com/he-lium/sokoban"
-import "github.com/he-lium/sokoban/parse"
+import (
+	"log"
+
+	"github.com/he-lium/sokoban"
+	"github.com/he-lium/sokoban/parse"
+)
 
 // Controller implements sokoban.Controller by communicating to user(s) via
 // Go channels
@@ -25,7 +29,7 @@ func (c *Controller) Init(b *sokoban.Board) {
 	for i := range c.sender {
 		j, err := parse.InitBoardJSON(c.nPlaying, i, b)
 		if err == nil {
-			c.sender[i].sendMsg <- j
+			c.sendTo(i, j)
 		} else {
 			// TODO Log error
 		}
@@ -38,6 +42,7 @@ func (c *Controller) RecvInput() (int, sokoban.Action) {
 	req := <-c.receiver
 	var a sokoban.Action
 	action := req.json["action"].(string)
+
 	switch action {
 	case "undo":
 		a.Type = sokoban.Undo
@@ -78,6 +83,9 @@ func (c *Controller) RecvInput() (int, sokoban.Action) {
 	default:
 		// invalid action
 	}
+
+	log.Printf("game %p controller: player %d %s %s",
+		c, req.player, action, sokoban.DirectionToStr(a.Direction))
 	return req.player, a
 }
 
@@ -113,6 +121,7 @@ func (c *Controller) sendTo(p int, msg []byte) {
 		select {
 		case c.sender[p].sendMsg <- msg:
 		default:
+			log.Printf("controller %p: player %d unresponsive", c, p)
 			c.connected[p] = false
 			close(c.sender[p].sendMsg)
 			if !c.won[p] {
@@ -124,6 +133,9 @@ func (c *Controller) sendTo(p int, msg []byte) {
 
 // Closing returns whether the game should stop
 func (c *Controller) Closing() bool {
+	if c.nPlaying <= 0 {
+		// TODO
+	}
 	return c.nPlaying <= 0
 	// After game has ended, caller is responsible for
 	// handling channels and Websocket connections
